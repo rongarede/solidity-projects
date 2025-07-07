@@ -1,0 +1,18 @@
+[submodule "lib/openzeppelin-contracts"]
+	path = lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "insort_test/lib/forge-std"]
+	path = insort_test/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "insort_test/lib/openzeppelin-contracts"]
+	path = insort_test/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "insort_test/Bank/lib/forge-std"]
+	path = insort_test/Bank/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "Bank/lib/forge-std"]
+	path = Bank/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "Bank/lib/openzeppelin-contracts"]
+	path = Bank/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
