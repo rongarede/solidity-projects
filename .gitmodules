@@ -22,3 +22,6 @@
 [submodule "templateProgram/lib/openzeppelin-contracts"]
 	path = templateProgram/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "modoule3/airdrop/lib/openzeppelin-contracts"]
+	path = modoule3/airdrop/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
