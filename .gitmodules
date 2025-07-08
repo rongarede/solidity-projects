@@ -13,3 +13,12 @@
 [submodule "modoule3/ERC20Faucet/lib/openzeppelin-contracts"]
 	path = modoule3/ERC20Faucet/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "modoule3/airdrop/lib/forge-std"]
+	path = modoule3/airdrop/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "templateProgram/lib/forge-std"]
+	path = templateProgram/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "templateProgram/lib/openzeppelin-contracts"]
+	path = templateProgram/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
