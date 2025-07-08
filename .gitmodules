@@ -25,3 +25,9 @@
 [submodule "modoule3/airdrop/lib/openzeppelin-contracts"]
 	path = modoule3/airdrop/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "modoule3/BaseERC721/lib/forge-std"]
+	path = modoule3/BaseERC721/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "modoule3/BaseERC721/lib/openzeppelin-contracts"]
+	path = modoule3/BaseERC721/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
