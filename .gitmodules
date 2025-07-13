@@ -43,3 +43,6 @@
 [submodule "modoule4/TokenBank/lib/openzeppelin-contracts"]
 	path = modoule4/TokenBank/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "modoule5/UUPS/lib/openzeppelin-contracts"]
+	path = modoule5/UUPS/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts

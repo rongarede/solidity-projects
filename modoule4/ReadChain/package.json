@@ -10,13 +10,19 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@scure/bip32": "^1.7.0",
+    "@scure/bip39": "^1.6.0",
     "dotenv": "^17.2.0",
     "ethers": "^6.15.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "viem": "^2.31.7"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.3.0"
+    "@testing-library/react": "^16.3.0",
+    "@types/node": "^24.0.13",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   }
 }
