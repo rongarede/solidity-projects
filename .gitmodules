@@ -49,3 +49,9 @@
 [submodule "modoule5/LockCoin/lib/openzeppelin-contracts"]
 	path = modoule5/LockCoin/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "modoule5/MultiSigWallet/lib/forge-std"]
+	path = modoule5/MultiSigWallet/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "modoule5/MultiSigWallet/lib/openzeppelin-contracts"]
+	path = modoule5/MultiSigWallet/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
