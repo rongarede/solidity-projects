@@ -46,3 +46,6 @@
 [submodule "modoule5/UUPS/lib/openzeppelin-contracts"]
 	path = modoule5/UUPS/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "modoule5/LockCoin/lib/openzeppelin-contracts"]
+	path = modoule5/LockCoin/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
