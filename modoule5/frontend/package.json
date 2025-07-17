@@ -1,0 +1,19 @@
+{
+  "name": "readlock-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for ReadLock contract storage reading",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "node src/storage-reader.js"
+  },
+  "dependencies": {
+    "viem": "^2.0.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}

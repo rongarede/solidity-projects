@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReadLock Contract Storage Reader</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        
+        .contract-info {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .contract-info code {
+            background: #d4edda;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .controls {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 10px;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #f44336;
+        }
+        
+        .locks-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .locks-table th,
+        .locks-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .locks-table th {
+            background: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .locks-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        .locks-table tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .address {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #2196F3;
+        }
+        
+        .amount {
+            font-weight: bold;
+            color: #FF9800;
+        }
+        
+        .timestamp {
+            color: #666;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .refresh-info {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 ReadLock Contract Storage Reader</h1>
+        
+        <div class="contract-info">
+            <p><strong>合约地址:</strong> <code id="contract-address">加载中...</code></p>
+            <p><strong>网络:</strong> <code>本地网络 (127.0.0.1:8545)</code></p>
+            <p><strong>链ID:</strong> <code>31337</code></p>
+        </div>
+        
+        <div class="controls">
+            <button id="read-btn" onclick="readLocks()">📖 读取锁仓数据</button>
+            <button id="refresh-btn" onclick="refreshData()" disabled>🔄 刷新数据</button>
+        </div>
+        
+        <div id="loading" class="loading" style="display: none;">
+            🔍 正在读取合约存储数据...
+        </div>
+        
+        <div id="error" class="error" style="display: none;"></div>
+        
+        <div id="stats" class="stats" style="display: none;">
+            <div class="stat-item">
+                <div class="stat-value" id="total-locks">0</div>
+                <div class="stat-label">总锁仓数</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="total-amount">0</div>
+                <div class="stat-label">总金额 (ETH)</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="unique-users">0</div>
+                <div class="stat-label">独特用户数</div>
+            </div>
+        </div>
+        
+        <div id="locks-container" style="display: none;">
+            <table class="locks-table">
+                <thead>
+                    <tr>
+                        <th>索引</th>
+                        <th>用户地址</th>
+                        <th>开始时间</th>
+                        <th>锁仓金额</th>
+                        <th>原始时间戳</th>
+                    </tr>
+                </thead>
+                <tbody id="locks-tbody">
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="refresh-info">
+            <p>💡 点击"读取锁仓数据"按钮开始读取合约存储数据</p>
+            <p>最后更新时间: <span id="last-update">从未更新</span></p>
+        </div>
+    </div>
+    
+    <script type="module" src="/src/web-client.js"></script>
+</body>
+</html>
