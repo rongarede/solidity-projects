@@ -1,0 +1,118 @@
+.app {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.wallet-section,
+.balance-section,
+.deposit-section,
+.withdraw-section {
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  border: 1px solid #ddd;
+}
+
+.wallet-section h2,
+.balance-section h2,
+.deposit-section h2,
+.withdraw-section h2 {
+  margin-top: 0;
+  color: #333;
+}
+
+.connect-btn,
+.disconnect-btn,
+.action-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.connect-btn:hover,
+.action-btn:hover {
+  background: #0056b3;
+}
+
+.disconnect-btn {
+  background: #dc3545;
+}
+
+.disconnect-btn:hover {
+  background: #c82333;
+}
+
+.action-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.amount-input {
+  width: 200px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin: 0.5rem;
+  font-size: 16px;
+}
+
+.balance-section p {
+  font-size: 16px;
+  margin: 0.5rem 0;
+  color: #555;
+}
+
+.tx-status {
+  background: #e9f7df;
+  border: 1px solid #d4edda;
+  border-radius: 4px;
+  padding: 1rem;
+  margin: 1rem 0;
+  color: #155724;
+}
+
+.tx-status p {
+  margin: 0.25rem 0;
+  word-break: break-all;
+}
+
+.balance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.balance-header h2 {
+  margin: 0;
+}
+
+.refresh-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.refresh-btn:hover {
+  background: #218838;
+}
+
+.refresh-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}

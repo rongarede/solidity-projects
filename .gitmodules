@@ -61,3 +61,15 @@
 [submodule "modoule5/ReadLock/lib/openzeppelin-contracts"]
 	path = modoule5/ReadLock/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "test/factory1/lib/forge-std"]
+	path = test/factory1/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "test/factory2/lib/forge-std"]
+	path = test/factory2/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "test/factory1/lib/openzeppelin-contracts"]
+	path = test/factory1/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "test/factory2/lib/openzeppelin-contracts"]
+	path = test/factory2/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
