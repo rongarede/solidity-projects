@@ -1,0 +1,54 @@
+{
+  "network": "Base Mainnet",
+  "chainId": 8453,
+  "contracts": {
+    "UniswapV2Factory": {
+      "address": "0x2E2812638232c64eeC81B4a2DFd4ca975887d571",
+      "deploymentTxHash": "0x42d6e54151d43c04184c2e74377f8564a193f555c6f758dc6226b0184f636f52",
+      "blockNumber": "0x1f904ff",
+      "deployer": "0x07EDff51D7ac57A6dA659be761DD28860A1342fd",
+      "feeToSetter": "0x07EDff51D7ac57A6dA659be761DD28860A1342fd"
+    },
+    "TestTokenA": {
+      "address": "0xd94b67a5e56696B57908c571eD1E5A40Ce3f64F3",
+      "symbol": "TTA",
+      "name": "Test Token A",
+      "decimals": 18
+    },
+    "TestTokenB": {
+      "address": "0x731495EAb495076B86CA562eDa51244F20A25CF5",
+      "symbol": "TTB", 
+      "name": "Test Token B",
+      "decimals": 18
+    },
+    "TestPair_TTA_TTB": {
+      "address": "0x27FD6cBE8d206047D695e966D54529b951848baF",
+      "token0": "0x731495EAb495076B86CA562eDa51244F20A25CF5",
+      "token1": "0xd94b67a5e56696B57908c571eD1E5A40Ce3f64F3",
+      "factory": "0x2E2812638232c64eeC81B4a2DFd4ca975887d571"
+    },
+    "MockWETH": {
+      "address": "0x7Ff8501f89DBFde83ad5b46ce04a508403a28700",
+      "symbol": "WETH",
+      "name": "Wrapped Ether",
+      "decimals": 18,
+      "description": "Mock WETH contract for testing, replaces Base mainnet WETH"
+    },
+    "UniswapV2Router02": {
+      "address": "0xcEc76053fBa3fDB41570B816bc42d4DB7497bC72",
+      "factory": "0x2E2812638232c64eeC81B4a2DFd4ca975887d571",
+      "WETH": "0x7Ff8501f89DBFde83ad5b46ce04a508403a28700",
+      "deploymentTxHash": "Updated with MockWETH integration",
+      "verified": true,
+      "verificationSource": "Local deployment with MockWETH"
+    }
+  },
+  "deploymentDate": "2025-07-20",
+  "gasUsed": {
+    "Factory": "0x235a95",
+    "TestTokens": "0x16d07a", 
+    "CreatePair": "0x2bcf7f",
+    "Router": "0x4786a1"
+  },
+  "notes": "Uniswap V2 Core contracts and Router deployed to Base mainnet with MockWETH replacing real WETH for testing independence"
+}

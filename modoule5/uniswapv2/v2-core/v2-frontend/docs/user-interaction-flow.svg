@@ -1,0 +1,202 @@
+<svg width="900" height="1200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- 定义各种颜色渐变 -->
+    <linearGradient id="startGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10B981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="processGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1E40AF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="decisionGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F59E0B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D97706;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="errorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#EF4444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DC2626;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="successGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 背景 -->
+  <rect width="900" height="1200" fill="#F8FAFC" />
+  
+  <!-- 标题 -->
+  <text x="450" y="40" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#1F2937">
+    Uniswap V2 添加流动性用户流程
+  </text>
+  
+  <!-- 开始节点 -->
+  <ellipse cx="450" cy="100" rx="60" ry="25" fill="url(#startGradient)" stroke="#059669" stroke-width="2"/>
+  <text x="450" y="105" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">开始</text>
+  
+  <!-- 连接钱包 -->
+  <rect x="375" y="150" width="150" height="40" rx="5" fill="url(#processGradient)" stroke="#1E40AF" stroke-width="2"/>
+  <text x="450" y="175" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">连接Web3钱包</text>
+  
+  <!-- 连接检查 -->
+  <polygon points="450,220 490,250 450,280 410,250" fill="url(#decisionGradient)" stroke="#D97706" stroke-width="2"/>
+  <text x="450" y="255" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">钱包已连接?</text>
+  
+  <!-- 连接失败分支 -->
+  <rect x="150" y="230" width="120" height="40" rx="5" fill="url(#errorGradient)" stroke="#DC2626" stroke-width="2"/>
+  <text x="210" y="255" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">显示连接按钮</text>
+  
+  <!-- 选择代币A -->
+  <rect x="375" y="320" width="150" height="40" rx="5" fill="url(#processGradient)" stroke="#1E40AF" stroke-width="2"/>
+  <text x="450" y="345" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">选择代币A</text>
+  
+  <!-- 选择代币B -->
+  <rect x="375" y="380" width="150" height="40" rx="5" fill="url(#processGradient)" stroke="#1E40AF" stroke-width="2"/>
+  <text x="450" y="405" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">选择代币B</text>
+  
+  <!-- 输入数量A -->
+  <rect x="375" y="440" width="150" height="40" rx="5" fill="url(#processGradient)" stroke="#1E40AF" stroke-width="2"/>
+  <text x="450" y="465" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">输入代币A数量</text>
+  
+  <!-- 自动计算数量B -->
+  <rect x="375" y="500" width="150" height="40" rx="5" fill="url(#processGradient)" stroke="#1E40AF" stroke-width="2"/>
+  <text x="450" y="520" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">自动计算代币B数量</text>
+  <text x="450" y="535" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">(基于储备比例)</text>
+  
+  <!-- 余额检查 -->
+  <polygon points="450,570 490,600 450,630 410,600" fill="url(#decisionGradient)" stroke="#D97706" stroke-width="2"/>
+  <text x="450" y="600" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">余额足够?</text>
+  
+  <!-- 余额不足分支 -->
+  <rect x="650" y="580" width="120" height="40" rx="5" fill="url(#errorGradient)" stroke="#DC2626" stroke-width="2"/>
+  <text x="710" y="605" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">显示余额不足</text>
+  
+  <!-- 授权检查A -->
+  <polygon points="450,670 490,700 450,730 410,700" fill="url(#decisionGradient)" stroke="#D97706" stroke-width="2"/>
+  <text x="450" y="695" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">代币A需要授权?</text>
+  <text x="450" y="710" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">(非ETH)</text>
+  
+  <!-- 授权代币A -->
+  <rect x="200" y="680" width="130" height="40" rx="5" fill="url(#processGradient)" stroke="#1E40AF" stroke-width="2"/>
+  <text x="265" y="705" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">授权代币A</text>
+  
+  <!-- 等待授权A确认 -->
+  <rect x="200" y="740" width="130" height="40" rx="5" fill="url(#processGradient)" stroke="#1E40AF" stroke-width="2"/>
+  <text x="265" y="765" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">等待授权确认</text>
+  
+  <!-- 授权检查B -->
+  <polygon points="450,770 490,800 450,830 410,800" fill="url(#decisionGradient)" stroke="#D97706" stroke-width="2"/>
+  <text x="450" y="795" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">代币B需要授权?</text>
+  <text x="450" y="810" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white">(非ETH)</text>
+  
+  <!-- 授权代币B -->
+  <rect x="580" y="780" width="130" height="40" rx="5" fill="url(#processGradient)" stroke="#1E40AF" stroke-width="2"/>
+  <text x="645" y="805" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">授权代币B</text>
+  
+  <!-- 等待授权B确认 -->
+  <rect x="580" y="840" width="130" height="40" rx="5" fill="url(#processGradient)" stroke="#1E40AF" stroke-width="2"/>
+  <text x="645" y="865" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">等待授权确认</text>
+  
+  <!-- 显示流动性预估 -->
+  <rect x="350" y="870" width="200" height="50" rx="5" fill="#F0F9FF" stroke="#0EA5E9" stroke-width="2"/>
+  <text x="450" y="890" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#0EA5E9">显示流动性预估信息</text>
+  <text x="450" y="905" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#0369A1">LP代币数量、池子份额等</text>
+  
+  <!-- 添加流动性 -->
+  <rect x="375" y="940" width="150" height="40" rx="5" fill="url(#processGradient)" stroke="#1E40AF" stroke-width="2"/>
+  <text x="450" y="965" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">执行添加流动性</text>
+  
+  <!-- 交易确认 -->
+  <polygon points="450,1010 490,1040 450,1070 410,1040" fill="url(#decisionGradient)" stroke="#D97706" stroke-width="2"/>
+  <text x="450" y="1045" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">交易成功?</text>
+  
+  <!-- 交易失败分支 -->
+  <rect x="650" y="1020" width="120" height="40" rx="5" fill="url(#errorGradient)" stroke="#DC2626" stroke-width="2"/>
+  <text x="710" y="1045" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">显示错误信息</text>
+  
+  <!-- 成功完成 -->
+  <ellipse cx="450" cy="1130" rx="80" ry="30" fill="url(#successGradient)" stroke="#7C3AED" stroke-width="2"/>
+  <text x="450" y="1125" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">流动性添加成功</text>
+  <text x="450" y="1140" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white">获得LP代币</text>
+  
+  <!-- 流程箭头 -->
+  <g stroke="#4B5563" stroke-width="2" fill="none" marker-end="url(#arrowhead)">
+    <!-- 主流程 -->
+    <path d="M 450 125 L 450 150"/>
+    <path d="M 450 190 L 450 220"/>
+    <path d="M 450 280 L 450 320"/>
+    <path d="M 450 360 L 450 380"/>
+    <path d="M 450 420 L 450 440"/>
+    <path d="M 450 480 L 450 500"/>
+    <path d="M 450 540 L 450 570"/>
+    <path d="M 450 630 L 450 670"/>
+    <path d="M 450 730 L 450 770"/>
+    <path d="M 450 830 L 450 870"/>
+    <path d="M 450 920 L 450 940"/>
+    <path d="M 450 980 L 450 1010"/>
+    <path d="M 450 1070 L 450 1100"/>
+    
+    <!-- 分支流程 -->
+    <path d="M 410 250 L 270 250"/>
+    <path d="M 210 270 L 210 290 L 410 290 L 410 250"/>
+    
+    <path d="M 490 600 L 650 600"/>
+    <path d="M 710 620 L 710 640 L 490 640 L 490 600"/>
+    
+    <path d="M 410 700 L 265 700"/>
+    <path d="M 265 720 L 265 780 L 410 780 L 410 700"/>
+    
+    <path d="M 490 800 L 645 800"/>
+    <path d="M 645 820 L 645 880 L 490 880 L 490 800"/>
+    
+    <path d="M 490 1040 L 710 1040"/>
+    <path d="M 710 1060 L 710 1080 L 490 1080 L 490 1040"/>
+  </g>
+  
+  <!-- 流程标签 -->
+  <g font-family="Arial, sans-serif" font-size="10" fill="#6B7280">
+    <text x="340" y="260">否</text>
+    <text x="460" y="290">是</text>
+    <text x="560" y="610">否</text>
+    <text x="460" y="640">是</text>
+    <text x="330" y="710">是</text>
+    <text x="460" y="740">否</text>
+    <text x="530" y="810">是</text>
+    <text x="460" y="840">否</text>
+    <text x="560" y="1050">否</text>
+    <text x="460" y="1080">是</text>
+  </g>
+  
+  <!-- 侧边说明 -->
+  <g id="side-notes">
+    <rect x="50" y="300" width="200" height="200" rx="5" fill="#FEF7CD" stroke="#F59E0B" stroke-width="1" stroke-dasharray="5,5"/>
+    <text x="150" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#92400E">关键检查点</text>
+    <text x="60" y="340" font-family="Arial, sans-serif" font-size="12" fill="#78350F">1. 钱包连接状态</text>
+    <text x="60" y="360" font-family="Arial, sans-serif" font-size="12" fill="#78350F">2. 代币余额充足</text>
+    <text x="60" y="380" font-family="Arial, sans-serif" font-size="12" fill="#78350F">3. 代币授权额度</text>
+    <text x="60" y="400" font-family="Arial, sans-serif" font-size="12" fill="#78350F">4. 流动性比例计算</text>
+    <text x="60" y="420" font-family="Arial, sans-serif" font-size="12" fill="#78350F">5. 滑点保护设置</text>
+    <text x="60" y="440" font-family="Arial, sans-serif" font-size="12" fill="#78350F">6. 交易截止时间</text>
+    <text x="60" y="460" font-family="Arial, sans-serif" font-size="12" fill="#78350F">7. Gas费用估算</text>
+    <text x="60" y="480" font-family="Arial, sans-serif" font-size="12" fill="#78350F">8. 交易确认状态</text>
+  </g>
+  
+  <g id="error-handling">
+    <rect x="650" y="450" width="200" height="150" rx="5" fill="#FEE2E2" stroke="#EF4444" stroke-width="1" stroke-dasharray="5,5"/>
+    <text x="750" y="470" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#991B1B">错误处理</text>
+    <text x="660" y="490" font-family="Arial, sans-serif" font-size="12" fill="#7F1D1D">• 钱包未连接</text>
+    <text x="660" y="510" font-family="Arial, sans-serif" font-size="12" fill="#7F1D1D">• 代币余额不足</text>
+    <text x="660" y="530" font-family="Arial, sans-serif" font-size="12" fill="#7F1D1D">• 授权交易失败</text>
+    <text x="660" y="550" font-family="Arial, sans-serif" font-size="12" fill="#7F1D1D">• 滑点过高</text>
+    <text x="660" y="570" font-family="Arial, sans-serif" font-size="12" fill="#7F1D1D">• 交易被拒绝</text>
+    <text x="660" y="590" font-family="Arial, sans-serif" font-size="12" fill="#7F1D1D">• Gas费不足</text>
+  </g>
+  
+  <!-- 箭头标记定义 -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#4B5563"/>
+    </marker>
+  </defs>
+</svg>

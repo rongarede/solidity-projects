@@ -1,0 +1,33 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+test = "test"
+script = "script"
+
+# Solidity compiler configuration
+solc = "0.8.27"
+optimizer = true
+optimizer_runs = 1000
+via_ir = true
+
+# Gas configuration
+gas_limit = 30000000
+gas_price = 20000000000
+
+# Test configuration
+verbosity = 2
+fuzz = { runs = 256 }
+
+# RPC URLs for different networks
+[rpc_endpoints]
+polygon = "https://1rpc.io/matic"
+ethereum = "https://eth.llamarpc.com"
+sepolia = "https://rpc.sepolia.org"
+
+# Etherscan API keys (optional)
+[etherscan]
+polygon = { key = "${POLYGONSCAN_API_KEY}", url = "https://api.polygonscan.com/" }
+ethereum = { key = "${ETHERSCAN_API_KEY}", url = "https://api.etherscan.io/api" }
+
+# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

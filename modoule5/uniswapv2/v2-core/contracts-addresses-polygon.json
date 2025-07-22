@@ -1,0 +1,54 @@
+{
+  "network": "Polygon",
+  "chainId": 137,
+  "deploymentDate": "2025-07-21",
+  "contracts": {
+    "UniswapV2Factory": {
+      "address": "0xAd359064D6315e30045D24dCBd41A078Fc8DfacC",
+      "deploymentGas": "2885009",
+      "gasPrice": "26.300500176 gwei",
+      "deploymentCost": "0.075877179712261584 POL"
+    },
+    "UniswapV2Router02": {
+      "address": "0x3ebaF23B04ee529EA55f67ea934699185Dd91D25",
+      "deploymentGas": "3876429", 
+      "gasPrice": "26.300500176 gwei",
+      "deploymentCost": "0.101952021596751504 POL",
+      "note": "Router deployed with MockWETH with initial supply"
+    },
+    "MockWETH": {
+      "address": "0xaEC13518815Fb88ad241dC945e00dAe350c426Db",
+      "deploymentGas": "859601",
+      "gasPrice": "28.716150553 gwei",
+      "deploymentCost": "0.024684431731509353 POL",
+      "initialSupply": "1000000 WETH",
+      "initialOwner": "0x07EDff51D7ac57A6dA659be761DD28860A1342fd",
+      "note": "MockWETH with 1M initial supply to deployer"
+    },
+    "TestTokenA": {
+      "address": "0xcB76bF429B49397363c36123DF9c2F93627e4f92",
+      "symbol": "TTA",
+      "name": "Test Token A",
+      "note": "Test token for liquidity pools"
+    },
+    "TestTokenB": {
+      "address": "0x7822811bF7b966611aD456F285298f9b4cda053b",
+      "symbol": "TTB", 
+      "name": "Test Token B",
+      "note": "Test token for liquidity pools"
+    }
+  },
+  "deployment": {
+    "feeToSetter": "0x07EDff51D7ac57A6dA659be761DD28860A1342fd",
+    "totalGasUsed": "6761454",
+    "totalDeploymentCost": "0.177829621951516904 POL",
+    "deploymentScript": {
+      "factory": "script/DeployFactoryPolygon.s.sol",
+      "router": "script/DeployRouterPolygon.s.sol"
+    }
+  },
+  "verification": {
+    "factory": "Verified - Fee to setter correctly set",
+    "router": "Verified - Factory and WMATIC addresses correctly set"
+  }
+}

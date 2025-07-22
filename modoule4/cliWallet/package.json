@@ -1,0 +1,31 @@
+{
+  "name": "eth-cli-wallet",
+  "version": "1.0.0",
+  "description": "A command-line ETH wallet built with Viem.js and TypeScript",
+  "main": "dist/cli.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/cli.ts",
+    "cli": "npm run build && node dist/cli.js",
+    "start": "node dist/cli.js"
+  },
+  "keywords": ["ethereum", "wallet", "cli", "viem", "typescript"],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "viem": "^2.7.1",
+    "commander": "^11.1.0",
+    "dotenv": "^16.3.1",
+    "inquirer": "^9.2.12"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/inquirer": "^9.0.7",
+    "tsx": "^4.6.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

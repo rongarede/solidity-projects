@@ -1,0 +1,15 @@
+node_modules/
+build/
+
+# Environment variables
+.env
+
+# Foundry deployment records
+broadcast/
+
+# Foundry compilation output
+cache/
+out/
+
+# Frontend error logs
+logs/
