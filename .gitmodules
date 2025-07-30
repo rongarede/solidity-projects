@@ -37,3 +37,6 @@
 [submodule "modoule6/DAOBank/lib/forge-std"]
 	path = modoule6/DAOBank/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
+[submodule "modoule6/DAOBank/lib/openzeppelin-contracts"]
+	path = modoule6/DAOBank/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts

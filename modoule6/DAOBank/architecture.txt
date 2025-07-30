@@ -1,0 +1,170 @@
+                    DAO BANK SYSTEM ARCHITECTURE
+                           
+                    ┌─────────────────────────────┐
+                    │       VotingToken.sol       │
+                    │  ┌─────────────────────────┐ │
+                    │  │      ERC20 Base         │ │
+                    │  │  ┌─────────────────────┐│ │
+                    │  │  │    ERC20Permit      ││ │ 
+                    │  │  │    ERC20Votes       ││ │
+                    │  │  │    Ownable          ││ │
+                    │  │  └─────────────────────┘│ │
+                    │  └─────────────────────────┘ │
+                    │  • Voting Power Management   │
+                    │  • Delegation System         │
+                    │  • Historical Checkpoints    │
+                    │  • Mint/Burn Functions       │
+                    └─────────────────────────────┘
+                                  │
+                                  │ governance
+                                  ▼
+                    ┌─────────────────────────────┐
+                    │         Gov.sol             │
+                    │  ┌─────────────────────────┐ │
+                    │  │   ReentrancyGuard       │ │
+                    │  └─────────────────────────┘ │
+                    │                             │
+                    │  PROPOSAL LIFECYCLE:        │
+                    │  ┌─────────────────────────┐ │
+                    │  │ Pending → Active →      │ │
+                    │  │ Succeeded → Queued →    │ │
+                    │  │ Executed                │ │
+                    │  │     ↓                   │ │
+                    │  │ Defeated/Canceled       │ │
+                    │  └─────────────────────────┘ │
+                    │                             │
+                    │  GOVERNANCE PARAMETERS:     │
+                    │  • Voting Delay: 1 day     │
+                    │  • Voting Period: 3 days   │
+                    │  • Execution Delay: 2 days │
+                    │  • Proposal Threshold: 1%  │
+                    │  • Quorum: 4%              │
+                    └─────────────────────────────┘
+                                  │
+                                  │ controls
+                                  ▼
+                    ┌─────────────────────────────┐
+                    │         Bank.sol            │
+                    │  ┌─────────────────────────┐ │
+                    │  │   ReentrancyGuard       │ │
+                    │  │   Ownable               │ │
+                    │  └─────────────────────────┘ │
+                    │                             │
+                    │  FUND MANAGEMENT:           │
+                    │  • deposit() - Public       │
+                    │  • withdraw() - Admin Only  │
+                    │  • getBalance()             │
+                    │  • receive() - Fallback     │
+                    │                             │
+                    │  STATE TRACKING:            │
+                    │  • userDeposits mapping     │
+                    │  • totalDeposits            │
+                    └─────────────────────────────┘
+
+                    ┌─────────────────────────────┐
+                    │        INTERFACES           │
+                    │  ┌─────────────────────────┐ │
+                    │  │     IVotingToken.sol    │ │
+                    │  │     IBank.sol           │ │
+                    │  └─────────────────────────┘ │
+                    └─────────────────────────────┘
+
+                    ┌─────────────────────────────┐
+                    │      TEST STRUCTURE         │
+                    │  ┌─────────────────────────┐ │
+                    │  │  VotingToken.t.sol      │ │
+                    │  │  Bank.t.sol             │ │
+                    │  │  Gov.t.sol              │ │
+                    │  │  Integration.t.sol      │ │
+                    │  └─────────────────────────┘ │
+                    └─────────────────────────────┘
+
+                    FLOW DIAGRAM:
+                    
+                    User             Gov Contract         Bank Contract
+                     │                    │                    │
+                     │ 1. propose()       │                    │
+                     ├───────────────────►│                    │
+                     │                    │                    │
+                     │ 2. castVote()      │                    │
+                     ├───────────────────►│                    │
+                     │                    │                    │
+                     │ 3. queue()         │                    │
+                     ├───────────────────►│                    │
+                     │                    │                    │
+                     │ 4. execute()       │  5. withdraw()     │
+                     ├───────────────────►├───────────────────►│
+                     │                    │                    │
+                     │                    │ 6. ETH Transfer    │
+                     │◄───────────────────┼────────────────────┤
+                     │                    │                    │
+
+                    DEPENDENCIES:
+                    • OpenZeppelin Contracts (ERC20, Access Control, Security)
+                    • Foundry Framework (Testing & Deployment)
+
+                    CONTRACT ANALYSIS:
+
+                    VotingToken.sol:
+                    ├── Inherits: ERC20, ERC20Permit, ERC20Votes, Ownable
+                    ├── Total Supply: 1,000,000 tokens (18 decimals)
+                    ├── Key Functions:
+                    │   ├── mint() - Owner only
+                    │   ├── burn() - Owner only  
+                    │   ├── getCurrentVotes() - Get current voting power
+                    │   └── getPriorVotes() - Get historical voting power
+                    └── Features: Vote delegation, checkpoint system, permit functionality
+
+                    Bank.sol:
+                    ├── Inherits: ReentrancyGuard, Ownable
+                    ├── Key Functions:
+                    │   ├── deposit() - Public, payable
+                    │   ├── withdraw() - Admin only, nonReentrant
+                    │   ├── getBalance() - View current balance
+                    │   └── changeAdmin() - Transfer ownership
+                    ├── State Variables:
+                    │   ├── userDeposits - Track individual deposits
+                    │   └── totalDeposits - Track total deposited amount
+                    └── Security: Reentrancy protection, safe ETH transfers
+
+                    Gov.sol:
+                    ├── Inherits: ReentrancyGuard
+                    ├── Dependencies: VotingToken, Bank contracts
+                    ├── Proposal States: Pending → Active → Succeeded → Queued → Executed
+                    │                   ↓
+                    │                   Defeated/Canceled
+                    ├── Key Functions:
+                    │   ├── propose() - Create proposal (threshold required)
+                    │   ├── castVote() - Vote on active proposals
+                    │   ├── queue() - Queue successful proposals
+                    │   ├── execute() - Execute queued proposals (after delay)
+                    │   └── cancel() - Cancel proposal (proposer only)
+                    ├── Governance Parameters:
+                    │   ├── VOTING_DELAY: 1 day
+                    │   ├── VOTING_PERIOD: 3 days
+                    │   ├── EXECUTION_DELAY: 2 days
+                    │   ├── PROPOSAL_THRESHOLD: 1% of total supply
+                    │   └── QUORUM_PERCENTAGE: 4% of total supply
+                    └── Vote Types: Against (0), For (1), Abstain (2)
+
+                    SECURITY FEATURES:
+                    ├── Reentrancy Protection (Bank, Gov)
+                    ├── Access Control (Ownable pattern)
+                    ├── Safe ETH Transfers (call pattern)
+                    ├── Proposal Threshold Requirements
+                    ├── Quorum Requirements
+                    ├── Timelock Mechanism
+                    └── Historical Vote Tracking
+
+                    DEPLOYMENT FLOW:
+                    1. Deploy VotingToken contract
+                    2. Deploy Bank contract
+                    3. Deploy Gov contract (with VotingToken and Bank addresses)
+                    4. Set Gov contract as Bank admin
+                    5. Distribute initial tokens to stakeholders
+
+                    TEST COVERAGE:
+                    ├── VotingToken.t.sol - Token functionality, delegation, voting power
+                    ├── Bank.t.sol - Deposits, withdrawals, admin controls
+                    ├── Gov.t.sol - Proposal lifecycle, voting mechanics
+                    └── Integration.t.sol - End-to-end governance flow
