@@ -13,23 +13,32 @@ interface DerivedAccount {
 
 class HDWallet {
   private mnemonic: string;
-  private seed: Uint8Array;
-  private masterKey: HDKey;
+  private seed!: Uint8Array;
+  private masterKey!: HDKey;
 
-  constructor(mnemonic?: string) {
+  private constructor(mnemonic?: string) {
     // 1. 生成或使用提供的助记词 (BIP-39)
     this.mnemonic = mnemonic || generateMnemonic(wordlist, 128); // 128 bits = 12 words
+  }
+
+  private async initialize() {
     console.log('🔑 生成的助记词 (BIP-39):');
     console.log(this.mnemonic);
     console.log('');
 
     // 2. 将助记词转换为种子并派生主账户 (BIP-32)
-    this.seed = mnemonicToSeed(this.mnemonic);
+    this.seed = await mnemonicToSeed(this.mnemonic);
     this.masterKey = HDKey.fromMasterSeed(this.seed);
     
     console.log('🌱 主种子 (BIP-32):');
     console.log(`0x${Buffer.from(this.seed).toString('hex')}`);
     console.log('');
+  }
+
+  public static async create(mnemonic?: string): Promise<HDWallet> {
+    const wallet = new HDWallet(mnemonic);
+    await wallet.initialize();
+    return wallet;
   }
 
   // 3. 基于 BIP-44 路径派生以太坊地址
@@ -112,14 +121,14 @@ class HDWallet {
 }
 
 // 主函数
-function main() {
+async function main() {
   console.log('🚀 HD 钱包派生测试 (BIP-32/BIP-39/BIP-44)');
   console.log('='.repeat(50));
   console.log('');
 
   try {
     // 创建 HD 钱包实例
-    const hdWallet = new HDWallet();
+    const hdWallet = await HDWallet.create();
 
     // 显示协议信息
     hdWallet.showProtocolInfo();

@@ -1,0 +1,39 @@
+[submodule "modoule6/OnlineOrcle/lib/forge-std"]
+	path = modoule6/OnlineOrcle/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "modoule6/OnlineOrcle/lib/openzeppelin-contracts"]
+	path = modoule6/OnlineOrcle/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "modoule6/FlashSwap/lib/forge-std"]
+	path = modoule6/FlashSwap/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "modoule6/FlashSwap/lib/openzeppelin-contracts"]
+	path = modoule6/FlashSwap/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "modoule6/StakePool/lib/forge-std"]
+	path = modoule6/StakePool/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "modoule6/StakePool/lib/openzeppelin-contracts"]
+	path = modoule6/StakePool/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "modoule6/RebaseToken/lib/forge-std"]
+	path = modoule6/RebaseToken/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "modoule6/RebaseToken/lib/openzeppelin-contracts"]
+	path = modoule6/RebaseToken/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "modoule6/RebaseToken/lib/prb-math"]
+	path = modoule6/RebaseToken/lib/prb-math
+	url = https://github.com/PaulRBerg/prb-math
+[submodule "modoule6/vAMM/lib/forge-std"]
+	path = modoule6/vAMM/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "modoule6/vAMM/lib/openzeppelin-contracts"]
+	path = modoule6/vAMM/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "modoule6/CallOption/lib/forge-std"]
+	path = modoule6/CallOption/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "modoule6/DAOBank/lib/forge-std"]
+	path = modoule6/DAOBank/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
