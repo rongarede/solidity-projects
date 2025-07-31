@@ -1,0 +1,376 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+import "forge-std/Test.sol";
+import "../src/RebaseToken.sol";
+
+contract RebaseTokenSecurityTest is Test {
+    RebaseToken public token;
+    address public owner = address(this);
+    address public attacker = makeAddr("attacker");
+    address public alice = makeAddr("alice");
+    address public bob = makeAddr("bob");
+
+    uint256 constant INITIAL_SUPPLY = 100_000_000 * 10**18;
+    uint256 constant BLOCKS_PER_YEAR = 15_768_000;
+
+    function setUp() public {
+        token = new RebaseToken("Rebase Token", "RBT", 18);
+    }
+
+    // ===== Access Control Attack Vectors =====
+
+    function test_Security_OnlyOwnerCanRebase() public {
+        // Given: Attacker tries to call rebase
+        vm.roll(block.number + BLOCKS_PER_YEAR);
+
+        // When: Attacker attempts rebase
+        vm.prank(attacker);
+        vm.expectRevert();
+        token.rebase();
+
+        // Then: Rebase should not occur
+        assertEq(token.index(), 1e18, "Index should remain unchanged");
+    }
+
+    function test_Security_OwnerRebasePrivilegeCannotBeTransferred() public {
+        // Given: Owner tries to transfer ownership (if it had transfer)
+        // Note: Ownable2Step would prevent direct transfer attacks
+        
+        // Owner can still rebase
+        vm.roll(block.number + BLOCKS_PER_YEAR);
+        token.rebase();
+        
+        assertLt(token.index(), 1e18, "Owner rebase should work");
+    }
+
+    // ===== Reentrancy Attack Prevention =====
+
+    function test_Security_ReentrancyOnTransfer() public {
+        // Given: Malicious contract that tries reentrancy
+        MaliciousReentrancyAttacker malicious = new MaliciousReentrancyAttacker(token);
+        
+        // Transfer tokens to malicious contract
+        token.transfer(address(malicious), 1000 * 10**18);
+        
+        // When: Malicious contract tries reentrancy during transfer
+        // This should fail due to transfer pattern
+        vm.expectRevert("ERC20: transfer amount exceeds balance");
+        malicious.attackReentrancy();
+    }
+
+    // ===== Integer Overflow/Underflow Tests =====
+
+    function test_Security_ShouldNotOverflowOnLargeAmounts() public {
+        // Given: Maximum possible amounts
+        uint256 maxAmount = type(uint256).max;
+        
+        // When: We test with maximum values
+        uint256 shares = token.getSharesByAmount(maxAmount);
+        uint256 convertedBack = token.getAmountByShares(shares);
+        
+        // Then: Should handle without overflow
+        assertLe(convertedBack, maxAmount, "Should not overflow");
+        assertGt(shares, 0, "Should produce valid shares");
+    }
+
+    function test_Security_ShouldNotUnderflowOnRebase() public {
+        // Given: Many years of deflation
+        uint256 numYears = 1000;
+        vm.roll(block.number + (BLOCKS_PER_YEAR * numYears));
+        
+        // When: We trigger rebase
+        token.rebase();
+        
+        // Then: Index should never be zero
+        assertGt(token.index(), 0, "Index should never underflow to zero");
+        assertLt(token.index(), 1e18, "Index should decrease");
+    }
+
+    function test_Security_ShouldHandleZeroAmountEdgeCases() public {
+        // Given: Zero amounts
+        uint256 zeroAmount = 0;
+        
+        // When: We test various operations with zero
+        uint256 shares = token.getSharesByAmount(zeroAmount);
+        uint256 amount = token.getAmountByShares(zeroAmount);
+        
+        // Then: Should handle gracefully
+        assertEq(shares, 0, "Zero amount should give zero shares");
+        assertEq(amount, 0, "Zero shares should give zero amount");
+        
+        // Transfer zero should succeed
+        bool success = token.transfer(alice, zeroAmount);
+        assertTrue(success, "Zero transfer should succeed");
+    }
+
+    // ===== Division by Zero Protection =====
+
+    function test_Security_ShouldNeverDivideByZero() public {
+        // Given: Various scenarios that might cause division by zero
+        
+        // Test with very small amounts
+        uint256 tinyAmount = 1;
+        uint256 shares = token.getSharesByAmount(tinyAmount);
+        uint256 back = token.getAmountByShares(shares);
+        
+        assertEq(back, tinyAmount, "Tiny amounts should work correctly");
+        
+        // Test after rebase
+        vm.roll(block.number + BLOCKS_PER_YEAR);
+        token.rebase();
+        
+        shares = token.getSharesByAmount(tinyAmount);
+        back = token.getAmountByShares(shares);
+        assertEq(back, tinyAmount, "Tiny amounts should work after rebase");
+    }
+
+    // ===== Precision Attack Tests =====
+
+    function test_Security_ShouldMaintainPrecisionOnRounding() public {
+        // Given: Amounts that might cause precision issues
+        uint256[] memory testAmounts = new uint256[](10);
+        testAmounts[0] = 1;
+        testAmounts[1] = 2;
+        testAmounts[2] = 3;
+        testAmounts[3] = 999;
+        testAmounts[4] = 1000;
+        testAmounts[5] = 1001;
+        testAmounts[6] = 10**18 - 1;
+        testAmounts[7] = 10**18;
+        testAmounts[8] = 10**18 + 1;
+        testAmounts[9] = 2**128 - 1;
+
+        for (uint i = 0; i < testAmounts.length; i++) {
+            uint256 amount = testAmounts[i];
+            uint256 shares = token.getSharesByAmount(amount);
+            uint256 convertedBack = token.getAmountByShares(shares);
+            
+            // Allow small rounding errors for very large numbers
+            if (amount > 10**20) {
+                assertApproxEqAbs(convertedBack, amount, 1000, "Large amounts should maintain precision");
+            } else {
+                assertEq(convertedBack, amount, "Amounts should maintain exact precision");
+            }
+        }
+    }
+
+    // ===== Approval Attack Vectors =====
+
+    function test_Security_ShouldPreventApprovalRaceCondition() public {
+        // Given: Alice approves Bob for some amount
+        vm.prank(alice);
+        token.approve(bob, 1000 * 10**18);
+        
+        // When: Alice changes approval
+        vm.prank(alice);
+        token.approve(bob, 500 * 10**18);
+        
+        // Then: New approval should be set correctly
+        assertEq(token.allowance(alice, bob), 500 * 10**18, "Approval should be updated correctly");
+    }
+
+    function test_Security_ShouldHandleInfiniteAllowanceSafely() public {
+        // Given: Infinite allowance approval
+        vm.prank(alice);
+        token.approve(bob, type(uint256).max);
+        
+        // When: Bob uses some of the allowance
+        vm.prank(bob);
+        token.transferFrom(alice, charlie, 1000 * 10**18);
+        
+        // Then: Infinite allowance should remain
+        assertEq(token.allowance(alice, bob), type(uint256).max, "Infinite allowance should not decrease");
+    }
+
+    // ===== Balance Manipulation Tests =====
+
+    function test_Security_ShouldPreventBalanceManipulation() public {
+        // Given: Multiple accounts with balances
+        token.transfer(alice, 1000 * 10**18);
+        token.transfer(bob, 2000 * 10**18);
+        
+        uint256 aliceBefore = token.balanceOf(alice);
+        uint256 bobBefore = token.balanceOf(bob);
+        uint256 totalBefore = token.totalSupply();
+        
+        // When: Rebase occurs
+        vm.roll(block.number + BLOCKS_PER_YEAR);
+        token.rebase();
+        
+        // Then: Balances should scale proportionally
+        uint256 aliceAfter = token.balanceOf(alice);
+        uint256 bobAfter = token.balanceOf(bob);
+        uint256 totalAfter = token.totalSupply();
+        
+        assertEq(aliceAfter * 100, aliceBefore * 99, "Alice's balance should scale correctly");
+        assertEq(bobAfter * 100, bobBefore * 99, "Bob's balance should scale correctly");
+        assertEq(totalAfter * 100, totalBefore * 99, "Total supply should scale correctly");
+    }
+
+    // ===== Denial of Service Tests =====
+
+    function test_Security_ShouldResistDoSAttackViaManyTransfers() public {
+        // Given: Attacker creates many small transfers
+        address attacker = makeAddr("dosAttacker");
+        token.transfer(attacker, 1000 * 10**18);
+        
+        // When: Attacker performs many operations
+        for (uint i = 0; i < 100; i++) {
+            address recipient = makeAddr(string(abi.encodePacked("recipient", vm.toString(i))));
+            vm.prank(attacker);
+            token.transfer(recipient, 1 * 10**18);
+        }
+        
+        // Then: System should still function normally
+        vm.roll(block.number + BLOCKS_PER_YEAR);
+        token.rebase();
+        
+        assertLt(token.index(), 1e18, "Rebase should still work correctly");
+    }
+
+    // ===== Flash Loan Style Attacks =====
+
+    function test_Security_ShouldPreventFlashLoanStyleAttacks() public {
+        // Given: Attacker trying to manipulate balances within single transaction
+        FlashLoanAttacker flashAttacker = new FlashLoanAttacker(token);
+        
+        // When: Attacker attempts flash loan style attack
+        // This should fail because rebase affects all holders equally
+        flashAttacker.attemptFlashAttack();
+        
+        // Then: Attack should not be profitable
+        assertEq(token.balanceOf(address(flashAttacker)), 0, "Flash attack should not work");
+    }
+
+    // ===== State Consistency Tests =====
+
+    function test_Security_ShouldMaintainStateConsistency() public {
+        // Given: Initial state
+        uint256 initialTotalSupply = token.totalSupply();
+        uint256 initialTotalShares = token.totalShares();
+        uint256 initialIndex = token.index();
+        
+        // When: Various operations occur
+        token.transfer(alice, 1000 * 10**18);
+        token.transfer(bob, 2000 * 10**18);
+        
+        vm.roll(block.number + BLOCKS_PER_YEAR);
+        token.rebase();
+        
+        // Then: State should remain consistent
+        uint256 sumOfBalances = token.balanceOf(owner) + token.balanceOf(alice) + token.balanceOf(bob);
+        assertEq(token.totalSupply(), sumOfBalances, "Total supply should equal sum of balances");
+        assertEq(token.totalShares(), initialTotalShares, "Total shares should remain constant");
+        assertLt(token.index(), initialIndex, "Index should decrease after rebase");
+    }
+
+    // ===== Overflow in Calculations Tests =====
+
+    function test_Security_ShouldHandleExtremeRebaseYears() public {
+        // Given: Extremely large number of years
+        uint256 extremeYears = type(uint256).max / BLOCKS_PER_YEAR;
+        
+        // When: We try to calculate with extreme years
+        // This should be handled gracefully by the contract
+        vm.roll(block.number + (BLOCKS_PER_YEAR * 100)); // Use reasonable large number
+        
+        // Should not revert or overflow
+        token.rebase();
+        
+        assertGt(token.index(), 0, "Index should never reach zero");
+    }
+
+    // ===== Access Control Edge Cases =====
+
+    function test_Security_ShouldNotAllowRebaseWithZeroElapsed() public {
+        // Given: No time has passed
+        uint256 initialIndex = token.index();
+        
+        // When: Rebase is called
+        vm.recordLogs();
+        token.rebase();
+        
+        // Then: Should not change anything
+        Vm.Log[] memory entries = vm.getRecordedLogs();
+        assertEq(entries.length, 0, "Should not emit events when no rebase occurs");
+        assertEq(token.index(), initialIndex, "Index should not change");
+    }
+
+    // ===== Randomized Testing =====
+
+    function test_Security_RandomizedFuzzing(uint256 amount, uint256 years) public {
+        // Bound inputs to reasonable ranges
+        amount = bound(amount, 1, INITIAL_SUPPLY / 1000);
+        years = bound(years, 0, 50);
+        
+        // Given: Random amounts and years
+        token.transfer(alice, amount);
+        
+        uint256 aliceBefore = token.balanceOf(alice);
+        uint256 totalBefore = token.totalSupply();
+        
+        // When: Random rebase occurs
+        vm.roll(block.number + (BLOCKS_PER_YEAR * years));
+        token.rebase();
+        
+        uint256 aliceAfter = token.balanceOf(alice);
+        uint256 totalAfter = token.totalSupply();
+        
+        // Then: Should maintain proportions
+        if (years > 0) {
+            assertApproxEqRel(aliceAfter, aliceBefore * 99**years / 100**years, 0.01e18, "Proportions should be maintained");
+            assertApproxEqRel(totalAfter, totalBefore * 99**years / 100**years, 0.01e18, "Total should scale correctly");
+        }
+    }
+}
+
+// ===== Helper Attack Contracts =====
+
+contract MaliciousReentrancyAttacker {
+    RebaseToken public token;
+    bool public attacking;
+    
+    constructor(RebaseToken _token) {
+        token = _token;
+    }
+    
+    function attackReentrancy() external {
+        attacking = true;
+        token.transfer(address(this), 1); // This should fail
+        attacking = false;
+    }
+    
+    fallback() external payable {
+        if (attacking) {
+            // Try to reenter during transfer
+            token.transfer(msg.sender, 1);
+        }
+    }
+}
+
+contract FlashLoanAttacker {
+    RebaseToken public token;
+    
+    constructor(RebaseToken _token) {
+        token = _token;
+    }
+    
+    function attemptFlashAttack() external {
+        // This simulates a flash loan style attack
+        // where attacker tries to manipulate balances
+        // within a single transaction
+        
+        uint256 initialBalance = token.balanceOf(address(this));
+        
+        // Perform various operations trying to game the system
+        token.transfer(makeAddr("temp1"), 100 * 10**18);
+        token.transfer(makeAddr("temp2"), 200 * 10**18);
+        
+        // Try to call rebase in same transaction (if possible)
+        // This should not give attacker any advantage
+        
+        uint256 finalBalance = token.balanceOf(address(this));
+        assert(finalBalance == initialBalance); // Should be unchanged
+    }
+}

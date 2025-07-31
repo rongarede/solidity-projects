@@ -1,0 +1,194 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+import "forge-std/Test.sol";
+import "../src/RebaseToken.sol";
+
+contract RebaseTokenRebaseTest is Test {
+    RebaseToken public token;
+    address public owner = address(this);
+    address public alice = makeAddr("alice");
+    address public bob = makeAddr("bob");
+    
+    uint256 constant INITIAL_SUPPLY = 100_000_000 * 10**18;
+    uint256 constant BLOCKS_PER_YEAR = 15_768_000;
+    uint256 constant INDEX_PRECISION = 1e18;
+    uint256 constant DEFLATION_RATE = 99 * 10**16;
+    
+    event Rebase(uint256 indexed yearsElapsed, uint256 newIndex);
+
+    function setUp() public {
+        token = new RebaseToken("Rebase Token", "RBT", 18);
+    }
+    
+    function advanceYears(uint256 numYears) internal {
+        vm.roll(block.number + (BLOCKS_PER_YEAR * numYears));
+    }
+    
+    function calculateExpectedIndex(uint256 numYears) internal pure returns (uint256) {
+        return INDEX_PRECISION * (DEFLATION_RATE ** numYears) / (1e18 ** numYears);
+    }
+
+    // 步骤25: Rebase核心测试
+
+    // 单次Rebase测试 - 1年后
+    function testSingleRebaseAfterOneYear() public {
+        uint256 initialBalance = token.balanceOf(owner);
+        uint256 initialShares = token.sharesOf(owner);
+        
+        // 前进1年
+        advanceYears(1);
+        
+        // 执行rebase
+        vm.expectEmit(true, true, true, true);
+        emit Rebase(1, calculateExpectedIndex(1));
+        
+        token.rebase();
+        
+        // 验证结果
+        assertApproxEq(token.index(), calculateExpectedIndex(1), "指数应为0.99");
+        assertEq(token.sharesOf(owner), initialShares, "份额数量应保持不变");
+        
+        uint256 expectedBalance = calculateExpectedBalance(initialBalance, 1);
+        assertApproxEq(token.balanceOf(owner), expectedBalance, "余额应减少1%");
+        assertApproxEq(token.totalSupply(), calculateExpectedBalance(INITIAL_SUPPLY, 1), "总供应量应减少1%");
+    }
+
+    // 多次Rebase测试 - 3年后一次性
+    function test多年一次性Rebase() public {
+        uint256 initialBalance = token.balanceOf(owner);
+        
+        // 前进3年
+        advanceYears(3);
+        
+        vm.expectEmit(true, true, true, true);
+        emit Rebase(3, calculateExpectedIndex(3));
+        
+        token.rebase();
+        
+        uint256 expectedBalance = calculateExpectedBalance(initialBalance, 3);
+        assertApproxEq(token.balanceOf(owner), expectedBalance, "3年后余额应减少约2.97%");
+        assertEq(token.index(), calculateExpectedIndex(3), "3年后指数应为0.970299");
+    }
+
+    // 不足1年无效果测试
+    function test不足1年无效果() public {
+        uint256 initialIndex = token.index();
+        uint256 initialBalance = token.balanceOf(owner);
+        
+        // 前进不足1年
+        advanceBlocks(BLOCKS_PER_YEAR - 1);
+        
+        // 尝试rebase - 应无事件发出
+        vm.recordLogs();
+        token.rebase();
+        
+        Vm.Log[] memory entries = vm.getRecordedLogs();
+        assertEq(entries.length, 0, "不应发出rebase事件");
+        assertEq(token.index(), initialIndex, "指数应保持不变");
+        assertEq(token.balanceOf(owner), initialBalance, "余额应保持不变");
+    }
+
+    // 分数年测试 - 1.5年应只rebase1年
+    function test分数年处理() public {
+        uint256 initialBalance = token.balanceOf(owner);
+        
+        // 前进1.5年
+        advanceBlocks(BLOCKS_PER_YEAR * 3 / 2);
+        
+        vm.expectEmit(true, true, true, true);
+        emit Rebase(1, calculateExpectedIndex(1));
+        
+        token.rebase();
+        
+        // 应只处理1年
+        assertApproxEq(token.balanceOf(owner), calculateExpectedBalance(initialBalance, 1), "应只处理1年");
+    }
+
+    // 多次连续Rebase测试
+    function test多次连续Rebase() public {
+        uint256 initialBalance = token.balanceOf(owner);
+        
+        // 第一年
+        advanceYears(1);
+        token.rebase();
+        uint256 balanceAfter1Year = token.balanceOf(owner);
+        assertApproxEq(balanceAfter1Year, calculateExpectedBalance(initialBalance, 1), "第1次rebase应正确");
+        
+        // 第二年
+        advanceYears(1);
+        token.rebase();
+        uint256 balanceAfter2Years = token.balanceOf(owner);
+        assertApproxEq(balanceAfter2Years, calculateExpectedBalance(initialBalance, 2), "第2次rebase应正确");
+        
+        // 第三年
+        advanceYears(1);
+        token.rebase();
+        uint256 balanceAfter3Years = token.balanceOf(owner);
+        assertApproxEq(balanceAfter3Years, calculateExpectedBalance(initialBalance, 3), "第3次rebase应正确");
+    }
+
+    // Rebase信息查询测试
+    function testRebase信息查询() public {
+        // 初始状态
+        (uint256 currentIndex, uint256 blocksUntilNextRebase, uint256 expectedNextRebaseImpact) = token.getRebaseInfo();
+        assertEq(currentIndex, INDEX_PRECISION, "初始指数应为1e18");
+        assertEq(blocksUntilNextRebase, BLOCKS_PER_YEAR, "距离下次rebase应为1年");
+        assertApproxEq(expectedNextRebaseImpact, INDEX_PRECISION * 99 / 100, "下次rebase影响应为0.99");
+        
+        // 半年后
+        advanceHalfYear();
+        (, blocksUntilNextRebase, ) = token.getRebaseInfo();
+        assertEq(blocksUntilNextRebase, BLOCKS_PER_YEAR / 2, "半年后距离应为半年");
+        
+        // 1年后
+        advanceYears(1);
+        (, blocksUntilNextRebase, ) = token.getRebaseInfo();
+        assertEq(blocksUntilNextRebase, 0, "1年后距离应为0");
+    }
+
+    // 多用户场景Rebase测试
+    function test多用户场景Rebase() public {
+        setupMultiUserScenario(token);
+        
+        uint256 aliceBalance = token.balanceOf(alice);
+        uint256 bobBalance = token.balanceOf(bob);
+        uint256 charlieBalance = token.balanceOf(charlie);
+        
+        // 前进1年
+        advanceYears(1);
+        token.rebase();
+        
+        // 验证所有用户按比例减少
+        assertApproxEq(token.balanceOf(alice), calculateExpectedBalance(aliceBalance, 1), "Alice余额应按比例减少");
+        assertApproxEq(token.balanceOf(bob), calculateExpectedBalance(bobBalance, 1), "Bob余额应按比例减少");
+        assertApproxEq(token.balanceOf(charlie), calculateExpectedBalance(charlieBalance, 1), "Charlie余额应按比例减少");
+        
+        // 验证份额保持不变
+        assertEq(token.sharesOf(alice), INITIAL_SUPPLY / 4, "Alice份额应保持不变");
+        assertEq(token.sharesOf(bob), INITIAL_SUPPLY / 3, "Bob份额应保持不变");
+        assertEq(token.sharesOf(charlie), INITIAL_SUPPLY / 5, "Charlie份额应保持不变");
+    }
+
+    // 极端年份测试
+    function test极端年份测试() public {
+        uint256 initialBalance = token.balanceOf(owner);
+        
+        // 测试50年（约50%通缩）
+        advanceYears(50);
+        token.rebase();
+        
+        uint256 expectedBalance = calculateExpectedBalance(initialBalance, 50);
+        assertApproxEq(token.balanceOf(owner), expectedBalance, "50年rebase应正确");
+        
+        // 测试100年（约63.4%通缩）
+        advanceYears(50);
+        token.rebase();
+        
+        uint256 expectedBalance100 = calculateExpectedBalance(initialBalance, 100);
+        assertApproxEq(token.balanceOf(owner), expectedBalance100, "100年rebase应正确");
+    }
+
+    // 事件：Rebase事件定义
+    event Rebase(uint256 indexed yearsElapsed, uint256 newIndex);
+}

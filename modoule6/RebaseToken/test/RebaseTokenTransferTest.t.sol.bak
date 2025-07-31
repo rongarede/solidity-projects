@@ -1,0 +1,194 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+import "forge-std/Test.sol";
+import "../src/RebaseToken.sol";
+
+contract RebaseTokenTransferTest is Test {
+    RebaseToken public token;
+    address public owner = address(this);
+    address public alice = makeAddr("alice");
+    address public bob = makeAddr("bob");
+    
+    uint256 constant INITIAL_SUPPLY = 100_000_000 * 10**18;
+    uint256 constant BLOCKS_PER_YEAR = 15_768_000;
+
+    function setUp() public {
+        token = new RebaseToken("Rebase Token", "RBT", 18);
+    }
+    
+    function advanceYears(uint256 numYears) internal {
+        vm.roll(block.number + (BLOCKS_PER_YEAR * numYears));
+    }
+    
+    function setupMultiUserScenario(RebaseToken tokenContract) internal {
+        tokenContract.transfer(alice, 30_000_000 * 10**18); // 30%
+        tokenContract.transfer(bob, 20_000_000 * 10**18);   // 20%
+        // owner keeps 50%
+    }
+
+    // 步骤26: 余额和转账测试
+
+    // Rebase前后余额比例保持测试
+    function testBalanceProportionMaintainedAfterRebase() public {
+        // 设置多用户场景
+        setupMultiUserScenario(token);
+        
+        uint256 aliceBalanceBefore = token.balanceOf(alice);
+        uint256 bobBalanceBefore = token.balanceOf(bob);
+        uint256 totalBefore = aliceBalanceBefore + bobBalanceBefore + token.balanceOf(owner);
+        
+        // 前进1年并rebase
+        advanceYears(1);
+        token.rebase();
+        
+        // 验证比例关系
+        uint256 aliceBalanceAfter = token.balanceOf(alice);
+        uint256 bobBalanceAfter = token.balanceOf(bob);
+        uint256 totalAfter = aliceBalanceAfter + bobBalanceAfter + token.balanceOf(owner);
+        
+        // 计算比例
+        uint256 aliceRatioBefore = aliceBalanceBefore * 1e18 / totalBefore;
+        uint256 aliceRatioAfter = aliceBalanceAfter * 1e18 / totalAfter;
+        uint256 bobRatioBefore = bobBalanceBefore * 1e18 / totalBefore;
+        uint256 bobRatioAfter = bobBalanceAfter * 1e18 / totalAfter;
+        
+        assertApproxEq(aliceRatioAfter, aliceRatioBefore, "Alice比例应保持不变");
+        assertApproxEq(bobRatioAfter, bobRatioBefore, "Bob比例应保持不变");
+    }
+
+    // Rebase前后转账测试
+    function testRebase前后转账() public {
+        // 转账前rebase
+        token.transfer(alice, 1000 * 10**18);
+        uint256 aliceBalanceBefore = token.balanceOf(alice);
+        
+        advanceYears(1);
+        token.rebase();
+        
+        uint256 aliceBalanceAfterRebase = token.balanceOf(alice);
+        assertApproxEq(aliceBalanceAfterRebase, calculateExpectedBalance(aliceBalanceBefore, 1), "rebase后余额应正确");
+        
+        // rebase后转账
+        uint256 transferAmount = 100 * 10**18;
+        assertTrue(token.transferFrom(owner, bob, transferAmount), "rebase后转账应成功");
+        assertEq(token.balanceOf(bob), transferAmount, "rebase后转账金额应正确");
+    }
+
+    // 大额转账测试
+    function test大额转账() public {
+        uint256 largeAmount = INITIAL_SUPPLY * 3 / 4;
+        
+        assertTrue(token.transfer(alice, largeAmount), "大额转账应成功");
+        assertEq(token.balanceOf(alice), largeAmount, "大额余额应正确");
+        assertEq(token.balanceOf(owner), INITIAL_SUPPLY - largeAmount, "发送方余额应正确");
+        
+        // 验证份额转换
+        uint256 shares = token.getSharesByAmount(largeAmount);
+        assertEq(token.sharesOf(alice), shares, "大额份额应正确");
+    }
+
+    // 小额转账测试（尘埃处理）
+    function test小额转账和尘埃处理() public {
+        uint256 tinyAmount = 1; // 1 wei
+        
+        assertTrue(token.transfer(alice, tinyAmount), "极小金额转账应成功");
+        assertEq(token.balanceOf(alice), tinyAmount, "极小金额应正确");
+        
+        // 验证份额转换精度
+        uint256 shares = token.getSharesByAmount(tinyAmount);
+        uint256 backToAmount = token.getAmountByShares(shares);
+        assertEq(backToAmount, tinyAmount, "极小金额转换应保持精度");
+        
+        // 前进1年rebase后验证
+        advanceYears(1);
+        token.rebase();
+        
+        uint256 expectedAfterRebase = calculateExpectedBalance(tinyAmount, 1);
+        assertApproxEq(token.balanceOf(alice), expectedAfterRebase, "rebase后极小金额应正确");
+    }
+
+    // 并发转账测试
+    function test并发转账() public {
+        setupMultiUserScenario(token);
+        
+        // 多个用户同时转账
+        vm.prank(alice);
+        token.transfer(bob, 100 * 10**18);
+        
+        vm.prank(bob);
+        token.transfer(charlie, 50 * 10**18);
+        
+        vm.prank(charlie);
+        token.transfer(owner, 25 * 10**18);
+        
+        // 验证所有余额
+        assertEq(token.balanceOf(alice), INITIAL_SUPPLY/4 - 100 * 10**18, "Alice余额应正确");
+        assertEq(token.balanceOf(bob), INITIAL_SUPPLY/3 + 100 * 10**18 - 50 * 10**18, "Bob余额应正确");
+        assertEq(token.balanceOf(charlie), INITIAL_SUPPLY/5 + 50 * 10**18 - 25 * 10**18, "Charlie余额应正确");
+    }
+
+    // 转账后rebase测试
+    function test转账后Rebase() public {
+        uint256 transferAmount = 1000 * 10**18;
+        
+        // 先转账
+        token.transfer(alice, transferAmount);
+        
+        // 再rebase
+        advanceYears(1);
+        token.rebase();
+        
+        // 验证转账后rebase正确性
+        uint256 expectedAliceBalance = calculateExpectedBalance(transferAmount, 1);
+        uint256 expectedOwnerBalance = calculateExpectedBalance(INITIAL_SUPPLY - transferAmount, 1);
+        
+        assertApproxEq(token.balanceOf(alice), expectedAliceBalance, "Alice转账后rebase应正确");
+        assertApproxEq(token.balanceOf(owner), expectedOwnerBalance, "Owner转账后rebase应正确");
+    }
+
+    // 零余额账户在rebase中的行为
+    function test零余额账户Rebase行为() public {
+        address zeroAddress = makeAddr("zero");
+        
+        // 验证零余额账户
+        assertEq(token.balanceOf(zeroAddress), 0, "零余额账户初始应为0");
+        assertEq(token.sharesOf(zeroAddress), 0, "零余额账户份额应为0");
+        
+        // rebase后验证
+        advanceYears(1);
+        token.rebase();
+        
+        assertEq(token.balanceOf(zeroAddress), 0, "零余额账户rebase后应为0");
+        assertEq(token.sharesOf(zeroAddress), 0, "零余额账户份额rebase后应为0");
+    }
+
+    // 转账和rebase的gas消耗测试
+    function test转账和RebaseGas消耗() public {
+        uint256 gasUsedTransfer;
+        uint256 gasUsedRebase;
+        
+        // 测试转账gas
+        uint256 snapshot = vm.snapshot();
+        gasUsedTransfer = gasleft();
+        token.transfer(alice, 1000 * 10**18);
+        gasUsedTransfer -= gasleft();
+        
+        vm.revertTo(snapshot);
+        
+        // 测试rebase gas
+        advanceYears(1);
+        gasUsedRebase = gasleft();
+        token.rebase();
+        gasUsedRebase -= gasleft();
+        
+        // 验证gas消耗在合理范围内
+        assertLt(gasUsedTransfer, 100000, "转账gas消耗应合理");
+        assertLt(gasUsedRebase, 150000, "rebase gas消耗应合理");
+    }
+
+    // 事件定义
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Rebase(uint256 indexed yearsElapsed, uint256 newIndex);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+}
