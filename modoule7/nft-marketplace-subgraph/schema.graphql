@@ -1,0 +1,62 @@
+type NFT @entity(immutable: false) {
+  id: ID!
+  tokenId: BigInt!
+  owner: Bytes!
+  tokenURI: String
+  createdAtTimestamp: BigInt!
+  createdAtBlockNumber: BigInt!
+}
+
+type Transfer @entity(immutable: true) {
+  id: ID!
+  from: Bytes!
+  to: Bytes!
+  tokenId: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  transactionHash: Bytes!
+}
+
+type Approval @entity(immutable: true) {
+  id: ID!
+  owner: Bytes!
+  approved: Bytes!
+  tokenId: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  transactionHash: Bytes!
+}
+
+type ApprovalForAll @entity(immutable: true) {
+  id: ID!
+  owner: Bytes!
+  operator: Bytes!
+  approved: Boolean!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  transactionHash: Bytes!
+}
+
+type Auction @entity(immutable: false) {
+  id: ID!
+  tokenId: BigInt!
+  seller: Bytes!
+  startingPrice: BigInt!
+  endingPrice: BigInt!
+  duration: BigInt!
+  startedAt: BigInt!
+  createdAtTimestamp: BigInt!
+  createdAtBlockNumber: BigInt!
+  cancelled: Boolean!
+  successful: Boolean!
+}
+
+type Purchase @entity(immutable: true) {
+  id: ID!
+  tokenId: BigInt!
+  buyer: Bytes!
+  price: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  transactionHash: Bytes!
+}

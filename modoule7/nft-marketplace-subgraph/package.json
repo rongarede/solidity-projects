@@ -1,0 +1,16 @@
+{
+  "name": "nft-marketplace-subgraph",
+  "license": "UNLICENSED",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy": "graph deploy",
+    "create-local": "graph create --node http://localhost:8020/ nft-marketplace-subgraph",
+    "remove-local": "graph remove --node http://localhost:8020/ nft-marketplace-subgraph",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 nft-marketplace-subgraph"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.79.0",
+    "@graphprotocol/graph-ts": "0.35.1"
+  }
+}

@@ -1,0 +1,58 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: MyCollectible
+    network: matic
+    source:
+      address: "0x690E2728911d9D5738e116F5cb2CF66927Eb3FcF"
+      abi: MyCollectible
+      startBlock: 20000000
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - NFT
+        - Transfer
+        - Approval
+        - ApprovalForAll
+      abis:
+        - name: MyCollectible
+          file: ./abis/MyCollectible.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+      file: ./src/my-collectible.ts
+  - kind: ethereum
+    name: NFTMarketDutchAuction
+    network: matic
+    source:
+      address: "0x3fd69c63410b407C714d4535f56F0d7797764eeA"
+      abi: NFTMarketDutchAuction
+      startBlock: 20000000
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Auction
+        - Purchase
+      abis:
+        - name: NFTMarketDutchAuction
+          file: ./abis/NFTMarketDutchAuction.json
+        - name: MyCollectible
+          file: ./abis/MyCollectible.json
+      eventHandlers:
+        - event: AuctionCreated(indexed uint256,indexed address,uint256,uint256,uint256)
+          handler: handleAuctionCreated
+        - event: AuctionSuccessful(indexed uint256,uint256,indexed address)
+          handler: handleAuctionSuccessful
+        - event: AuctionCancelled(indexed uint256)
+          handler: handleAuctionCancelled
+      file: ./src/nft-market-dutch-auction.ts
