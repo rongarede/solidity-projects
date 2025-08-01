@@ -20,6 +20,3 @@ toml = "0.8"
 substreams-ethereum = "0.9"
 tonic-build = "0.10"
 
-[[bench]]
-name = "performance"
-harness = false
