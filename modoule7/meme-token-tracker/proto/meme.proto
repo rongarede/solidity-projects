@@ -1,0 +1,30 @@
+syntax = "proto3";
+package meme;
+
+message TokenTransfer {
+  string token_address = 1;
+  string from = 2;
+  string to = 3;
+  string amount = 4;
+  uint64 block_number = 5;
+  string transaction_hash = 6;
+  uint64 log_index = 7;
+}
+
+message TokenTransfers {
+  repeated TokenTransfer transfers = 1;
+}
+
+message TokenActivity {
+  string address = 1;
+  uint64 transfer_count = 2;
+  uint64 last_block = 3;
+  string symbol = 4;
+}
+
+message TokenRankings {
+  repeated TokenActivity rankings = 1;
+  uint64 total_transfers = 2;
+  uint64 block_range_start = 3;
+  uint64 block_range_end = 4;
+}

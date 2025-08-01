@@ -1,0 +1,42 @@
+specVersion: v0.1.0
+package:
+  name: "meme-token-tracker"
+  version: v0.1.0
+  url: "https://github.com/your-username/meme-token-tracker"
+
+# imports:
+  # Import Ethereum types (commented out due to 404 error)
+  # ethereum: https://github.com/streamingfast/substreams-ethereum/releases/download/v0.9.0/substreams-ethereum-v0.9.0.spkg
+
+protobuf:
+  files:
+    - proto/meme.proto
+  importPaths:
+    - ./proto
+
+binaries:
+  default:
+    type: wasm/rust-v1
+    file: ./target/wasm32-unknown-unknown/release/substreams.wasm
+
+modules:
+  - name: map_token_transfers
+    kind: map
+    initialBlock: 17000000
+    inputs:
+      - source: sf.ethereum.type.v2.Block
+    output:
+      type: proto:meme.TokenTransfers
+    doc: "Extract ERC20 Transfer events for whitelisted meme tokens"
+
+  - name: map_token_rankings
+    kind: map
+    initialBlock: 17000000
+    inputs:
+      - map: map_token_transfers
+    output:
+      type: proto:meme.TokenRankings
+    doc: "Generate token activity rankings based on transfer counts"
+
+# Network configuration
+network: mainnet

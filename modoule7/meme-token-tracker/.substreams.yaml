@@ -1,0 +1,36 @@
+# StreamingFast API Configuration
+# This file configures the connection to StreamingFast endpoints
+
+# API Authentication
+api:
+  # Get your API token from https://app.streamingfast.io/
+  token: "${SUBSTREAMS_API_TOKEN}"
+  
+# Network endpoints
+endpoints:
+  mainnet: "eth.streamingfast.io:443"
+  goerli: "goerli.eth.streamingfast.io:443"
+  sepolia: "sepolia.eth.streamingfast.io:443"
+  polygon: "polygon.streamingfast.io:443"
+  bsc: "bsc.streamingfast.io:443"
+
+# Default configuration
+defaults:
+  network: "mainnet"
+  endpoint: "eth.streamingfast.io:443"
+  start_block: 17000000
+  
+# Request settings
+request:
+  # Number of blocks to process in parallel
+  parallel_blocks: 10
+  # Request timeout in seconds
+  timeout: 300
+  # Enable compression
+  compression: true
+  
+# Output settings
+output:
+  format: "json"
+  # Save output to file (optional)
+  # file: "output.json"

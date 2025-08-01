@@ -1,0 +1,25 @@
+[package]
+name = "meme-token-tracker"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "substreams"
+crate-type = ["cdylib"]
+
+[dependencies]
+substreams = "0.5"
+substreams-ethereum = "0.9"
+hex = "0.4"
+prost = "0.11"
+prost-types = "0.11"
+serde = { version = "1.0", features = ["derive"] }
+toml = "0.8"
+
+[build-dependencies]
+substreams-ethereum = "0.9"
+tonic-build = "0.10"
+
+[[bench]]
+name = "performance"
+harness = false
