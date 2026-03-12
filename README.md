@@ -2,6 +2,31 @@
 
 A collection of Solidity smart contract projects covering DeFi protocols, NFT mechanics, token standards, and on-chain governance — built with Foundry and Hardhat.
 
+## Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/rongarede/solidity-projects.git
+cd solidity-projects
+
+# Install Foundry (if not installed)
+curl -L https://foundry.paradigm.xyz | bash
+foundryup
+
+# Build all contracts
+forge build
+
+# Run all tests
+forge test
+
+# Run tests with gas report
+forge test --gas-report
+
+# Deploy to local Anvil
+anvil &
+forge script script/Deploy.s.sol --rpc-url http://localhost:8545 --broadcast
+```
+
 ## Projects
 
 ### Module 2 — ETH Banking
